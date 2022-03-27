@@ -13,23 +13,27 @@ $0 transforms web pages pages into readable EPUB files.
 
 USAGE:
 ------
-  $0 -u <URL> -t <title>
+  $0 -u <URL> -t <title> -d <dir>
 
 OPTIONS:
 --------
   -u Specifies the source URL
   -t Specifies a title of the output file
+  -d Destination directory
 EOF
     exit 1
 }
 
-while getopts "u:t:c:" opt; do
+while getopts "u:t:d:" opt; do
     case ${opt} in
     u)
         url=$OPTARG
         ;;
     t)
         title=$OPTARG
+        ;;
+    d)
+        dir=$OPTARG
         ;;
     \?)
         usage
@@ -38,6 +42,13 @@ while getopts "u:t:c:" opt; do
 done
 shift $((OPTIND - 1))
 
+if [ -z "$url" ] || [ -z "$title" ] || [ -z "$dir" ]; then
+    usage
+fi
+
+mkdir -p "$dir"
+./go-readability $url >>"$dir/$title".html
+
 r=$(shuf -i 0-255 -n 1)
 g=$(shuf -i 0-255 -n 1)
 b=$(shuf -i 0-255 -n 1)
@@ -45,13 +56,12 @@ b=$(shuf -i 0-255 -n 1)
 convert -size 1000x1000 xc:rgb\($r,$g,$b\) cover.png
 convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 1000x150 caption:"$title" cover.png +swap -gravity center -composite cover.png
 
-./go-readability $url >>"$title".html
-
 for f in fonts/*.ttf; do
     embed_fonts+="--epub-embed-font="
     embed_fonts+=$f
     embed_fonts+=" "
 done
 
-pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$title".epub "$title".html
-rm cover.png "$title".html
+pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
+
+rm cover.png
