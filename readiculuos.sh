@@ -46,6 +46,7 @@ if [ -z "$url" ] || [ -z "$title" ] || [ -z "$dir" ]; then
     usage
 fi
 
+dir=Library/"$dir"
 mkdir -p "$dir"
 ./go-readability $url >>"$dir/$title".html
 
