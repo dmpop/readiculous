@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v wget)" ] || [ ! -x "$(command -v awk)" ]; then
+if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v awk)" ]; then
     echo "Make sure that the required tools are installed"
     exit 1
 fi
@@ -45,8 +45,7 @@ fi
 
 dir=Library/"$dir"
 mkdir -p "$dir"
-wget -q $url -O tmp.html
-title=$(awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}' tmp.html)
+title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
 ./go-readability $url >>"$dir/$title".html
 
 r=$(shuf -i 0-255 -n 1)
@@ -64,4 +63,4 @@ done
 
 pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
 
-rm cover.png tmp.html
+rm cover.png
