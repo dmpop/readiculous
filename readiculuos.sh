@@ -30,6 +30,7 @@ EOF
     exit 1
 }
 
+#Read the specfied parameters
 while getopts "u:d:m:" opt; do
     case ${opt} in
     u)
@@ -48,16 +49,19 @@ while getopts "u:d:m:" opt; do
 done
 shift $((OPTIND - 1))
 
+# Generate random RBG values for cover color
 r=$(shuf -i 0-255 -n 1)
 g=$(shuf -i 0-255 -n 1)
 b=$(shuf -i 0-255 -n 1)
 
+# Add all fonts
 for f in fonts/*.ttf; do
     embed_fonts+="--epub-embed-font="
     embed_fonts+=$f
     embed_fonts+=" "
 done
 
+# If "-m auto" is specified
 if [ "$mode" = "auto" ]; then
     file="links.txt"
     if [ ! -f "$file" ]; then
@@ -66,11 +70,16 @@ if [ "$mode" = "auto" ]; then
     fi
     dir="Library"
     mkdir -p "$dir"
+    # Read the contents of the links.txt file line-by-line
     while IFS="" read -r url || [ -n "$url" ]; do
+        # For each URL, extract <title>
         title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
+        # generate a readable HTML file
         ./go-readability $url >>"$dir/$title".html
+        # generate a cover
         convert -size 1000x1000 xc:rgb\($r,$g,$b\) cover.png
         convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 1000x150 caption:"$title" cover.png +swap -gravity center -composite cover.png
+        # convert HTML to EPUB
         pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
         rm cover.png
     done <"$file"
@@ -83,12 +92,15 @@ fi
 
 dir=Library/"$dir"
 mkdir -p "$dir"
-title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
-./go-readability $url >>"$dir/$title".html
 
+# Extract <title> from the specified URL
+title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
+# Generate a readable HTML file
+./go-readability $url >>"$dir/$title".html
+# generate a cover
 convert -size 1000x1000 xc:rgb\($r,$g,$b\) cover.png
 convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 1000x150 caption:"$title" cover.png +swap -gravity center -composite cover.png
-
+# convert HTML to EPUB
 pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
 
 rm cover.png
