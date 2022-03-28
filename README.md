@@ -16,9 +16,9 @@ Readiculuos requires the [Pandoc](https://pandoc.org), [ImageMagick](https://ima
 
 ## Usage
 
-    readiculuos.sh -u <URL> -t <title>
+    readiculuos.sh -u <URL> -d <dir>
 
-Example: `./readiculuos.sh -u https://aeon.co/essays/forget-plato-aristotle-and-the-stoics-try-being-epicurean -t "How to be an Epicurean"`
+Example: `./readiculuos.sh -u https://aeon.co/essays/forget-plato-aristotle-and-the-stoics-try-being-epicurean -d "Philosophy"`
 
 ## Problems?
 
