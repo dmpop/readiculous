@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ]; then
+if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v wget)" ] || [ ! -x "$(command -v awk)" ]; then
     echo "Make sure that the required tools are installed"
     exit 1
 fi
@@ -13,7 +13,7 @@ $0 transforms web pages pages into readable EPUB files.
 
 USAGE:
 ------
-  $0 -u <URL> -t <title> -d <dir>
+  $0 -u <URL> -d <dir>
 
 OPTIONS:
 --------
@@ -24,13 +24,10 @@ EOF
     exit 1
 }
 
-while getopts "u:t:d:" opt; do
+while getopts "u:d:" opt; do
     case ${opt} in
     u)
         url=$OPTARG
-        ;;
-    t)
-        title=$OPTARG
         ;;
     d)
         dir=$OPTARG
@@ -42,12 +39,14 @@ while getopts "u:t:d:" opt; do
 done
 shift $((OPTIND - 1))
 
-if [ -z "$url" ] || [ -z "$title" ] || [ -z "$dir" ]; then
+if [ -z "$url" ] || [ -z "$dir" ]; then
     usage
 fi
 
 dir=Library/"$dir"
 mkdir -p "$dir"
+wget -q $url -O tmp.html
+title=$(awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}' tmp.html)
 ./go-readability $url >>"$dir/$title".html
 
 r=$(shuf -i 0-255 -n 1)
@@ -65,4 +64,4 @@ done
 
 pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
 
-rm cover.png
+rm cover.png tmp.html
