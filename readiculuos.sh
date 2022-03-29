@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v curl)" ] || [ ! -x "$(command -v awk)" ]; then
+if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v jq)" ]; then
     echo "Make sure that the required tools are installed"
     exit 1
 fi
@@ -73,7 +73,7 @@ if [ "$mode" = "auto" ]; then
     # Read the contents of the links.txt file line-by-line
     while IFS="" read -r url || [ -n "$url" ]; do
         # For each URL, extract <title>
-        title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
+        title=$(./go-readability -m $url | jq '.title' | tr -d \")
         # generate a readable HTML file
         ./go-readability $url >>"$dir/$title".html
         # generate a cover
@@ -94,7 +94,7 @@ dir=Library/"$dir"
 mkdir -p "$dir"
 
 # Extract <title> from the specified URL
-title=$(curl -s $url | awk -vRS="</title>" '/<title>/{gsub(/.*<title>|\n+/,"");print;exit}')
+title=$(./go-readability -m $url | jq '.title' | tr -d \")
 # Generate a readable HTML file
 ./go-readability $url >>"$dir/$title".html
 # generate a cover
