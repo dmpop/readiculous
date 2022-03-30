@@ -56,25 +56,23 @@ else
 fi
 mkdir -p "$dir"
 
-# Generate random RBG values for cover color
-r=$(shuf -i 0-255 -n 1)
-g=$(shuf -i 0-255 -n 1)
-b=$(shuf -i 0-255 -n 1)
-
 readicule() {
     # Extract title and image from the specified URL
     title=$(./go-readability -m $url | jq '.title' | tr -d \")
     # Generate a readable HTML file
     ./go-readability $url >>"$dir/$title".html
     # Generate a cover
-    convert -size 800x1024 xc:rgb\($r,$g,$b\) cover.png
-    convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 800x300 caption:"$title" cover.png +swap -gravity center -composite cover.png
+    convert -size 800x1024 plasma:fractal -paint 10 -blur 10x20 -paint 10 cover.png
+    convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 700x300 caption:"$title" cover.png +swap -gravity center -composite cover.png
     if [ -z "$title" ]; then
         title="This is Readiculous!"
     fi
     # convert HTML to EPUB
     pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
     rm cover.png
+    echo
+    echo ">>> '$title' has been saved in '$dir'"
+    echo
 }
 
 # If "-m auto" is specified
@@ -96,7 +94,3 @@ if [ -z "$url" ] || [ -z "$dir" ]; then
 fi
 
 readicule
-
-echo
-echo ">>> '$title' has been saved in '$dir'"
-echo
