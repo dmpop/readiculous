@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ ! -x "$(command -v wget)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v jq)" ]; then
+if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v jq)" ]; then
     echo "Make sure that the required tools are installed"
     exit 1
 fi
@@ -56,24 +56,25 @@ else
 fi
 mkdir -p "$dir"
 
+# Generate random RBG values for cover color
+r=$(shuf -i 0-255 -n 1)
+g=$(shuf -i 0-255 -n 1)
+b=$(shuf -i 0-255 -n 1)
+
 readicule() {
     # Extract title and image from the specified URL
     title=$(./go-readability -m $url | jq '.title' | tr -d \")
-    image=$(./go-readability -m $url | jq '.image' | tr -d \")
     # Generate a readable HTML file
     ./go-readability $url >>"$dir/$title".html
-    # Create a cover
-    if [ ! -z "$image" ]; then
-        wget -q "$image" -O cover
-    else
-        cp cover.jpg cover
-    fi
+    # Generate a cover
+    convert -size 800x1024 xc:rgb\($r,$g,$b\) cover.png
+    convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 800x300 caption:"$title" cover.png +swap -gravity center -composite cover.png
     if [ -z "$title" ]; then
         title="This is Readiculous!"
     fi
     # convert HTML to EPUB
-    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
-    rm cover
+    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
+    rm cover.png
 }
 
 # If "-m auto" is specified

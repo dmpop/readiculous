@@ -6,11 +6,11 @@ Readiculuos is a Bash shell script that transform web pages into readable EPUB f
 
 # Dependencies
 
-Readiculuos requires the [Pandoc](https://pandoc.org), [jq](https://stedolan.github.io/jq/), `wget`, and [Go-Readability](https://github.com/go-shiori/go-readability) tools. 
+Readiculuos requires the [Pandoc](https://pandoc.org), [ImageMagick](https://imagemagick.org), [jq](https://stedolan.github.io/jq/), and [Go-Readability](https://github.com/go-shiori/go-readability) tools. 
 
 # Installation and usage
 
-1. Install Pandoc, ImageMagick, jq, and wget. To do this on Ubuntu and Linux Mint, run the `sudo apt install pandoc imagemagick jq wget` command.
+1. Install Pandoc, ImageMagick, and jq. To do this on Ubuntu and Linux Mint, run the `sudo apt install pandoc imagemagick jq wget` command.
 2. Readiculous comes bundled with the x86_64 precompiled binary of Go-Readability. For other platform, you have to compile it yourself.
 3. Clone the project's Git repository: `git clone https://github.com/dmpop/readiculuos`
 
@@ -30,7 +30,7 @@ If you've found a bug or have a suggestion for improvement, open an issue in the
 
 To add a new feature or fix issues yourself, follow the following steps.
 
-1. Fork the project's repository repository.
+1. Fork the project's repository.
 2. Create a feature branch using the `git checkout -b new-feature` command.
 3. Add your new feature or fix bugs and run the `git commit -am 'Add a new feature'` command to commit changes.
 4. Push changes using the `git push origin new-feature` command.
