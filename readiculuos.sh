@@ -49,12 +49,28 @@ while getopts "u:d:m:" opt; do
 done
 shift $((OPTIND - 1))
 
-# Add all fonts
-for f in fonts/*.ttf; do
-    embed_fonts+="--epub-embed-font="
-    embed_fonts+=$f
-    embed_fonts+=" "
-done
+dir=Library/"$dir"
+mkdir -p "$dir"
+
+readicule() {
+    # Extract title and image from the specified URL
+    title=$(./go-readability -m $url | jq '.title' | tr -d \")
+    image=$(./go-readability -m $url | jq '.image' | tr -d \")
+    # Generate a readable HTML file
+    ./go-readability $url >>"$dir/$title".html
+    # Create a cover
+    if [ ! -z "$image" ]; then
+        wget -q "$image" -O cover
+    else
+        cp cover.jpg cover
+    fi
+    if [ -z "$title" ]; then
+        title="This is Readiculous!"
+    fi
+    # convert HTML to EPUB
+    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
+    rm cover
+}
 
 # If "-m auto" is specified
 if [ "$mode" = "auto" ]; then
@@ -63,20 +79,9 @@ if [ "$mode" = "auto" ]; then
         echo "$file not found."
         exit 1
     fi
-    dir="Library"
-    mkdir -p "$dir"
     # Read the contents of the links.txt file line-by-line
     while IFS="" read -r url || [ -n "$url" ]; do
-        # For each URL, extract title and image
-        title=$(./go-readability -m $url | jq '.title' | tr -d \")
-        image=$(./go-readability -m $url | jq '.image' | tr -d \")
-        # generate a readable HTML file
-        ./go-readability $url >>"$dir/$title".html
-        # save image as cover
-        wget -q "$image" -O cover
-        # convert HTML to EPUB
-        pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
-        rm cover
+        readicule
     done <"$file"
     exit 1
 fi
@@ -85,19 +90,7 @@ if [ -z "$url" ] || [ -z "$dir" ]; then
     usage
 fi
 
-dir=Library/"$dir"
-mkdir -p "$dir"
-
-# Extract title and image from the specified URL
-title=$(./go-readability -m $url | jq '.title' | tr -d \")
-image=$(./go-readability -m $url | jq '.image' | tr -d \")
-# Generate a readable HTML file
-./go-readability $url >>"$dir/$title".html
-# Save the image as cover
-wget -q "$image" -O cover
-# convert HTML to EPUB
-pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
-rm cover
+readicule
 
 echo
 echo ">>> '$title' has been saved in '$dir'"
