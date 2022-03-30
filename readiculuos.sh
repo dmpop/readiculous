@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-if [ ! -x "$(command -v convert)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v jq)" ]; then
+if [ ! -x "$(command -v wget)" ] || [ ! -x "$(command -v pandoc)" ] || [ ! -x "$(command -v jq)" ]; then
     echo "Make sure that the required tools are installed"
     exit 1
 fi
@@ -49,11 +49,6 @@ while getopts "u:d:m:" opt; do
 done
 shift $((OPTIND - 1))
 
-# Generate random RBG values for cover color
-r=$(shuf -i 0-255 -n 1)
-g=$(shuf -i 0-255 -n 1)
-b=$(shuf -i 0-255 -n 1)
-
 # Add all fonts
 for f in fonts/*.ttf; do
     embed_fonts+="--epub-embed-font="
@@ -72,16 +67,16 @@ if [ "$mode" = "auto" ]; then
     mkdir -p "$dir"
     # Read the contents of the links.txt file line-by-line
     while IFS="" read -r url || [ -n "$url" ]; do
-        # For each URL, extract <title>
+        # For each URL, extract title and image
         title=$(./go-readability -m $url | jq '.title' | tr -d \")
+        image=$(./go-readability -m $url | jq '.image' | tr -d \")
         # generate a readable HTML file
         ./go-readability $url >>"$dir/$title".html
-        # generate a cover
-        convert -size 1000x1000 xc:rgb\($r,$g,$b\) cover.png
-        convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 1000x150 caption:"$title" cover.png +swap -gravity center -composite cover.png
+        # save image as cover
+        wget -q "$image" -O cover
         # convert HTML to EPUB
-        pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
-        rm cover.png
+        pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
+        rm cover
     done <"$file"
     exit 1
 fi
@@ -93,20 +88,17 @@ fi
 dir=Library/"$dir"
 mkdir -p "$dir"
 
-# Extract <title> from the specified URL
+# Extract title and image from the specified URL
 title=$(./go-readability -m $url | jq '.title' | tr -d \")
+image=$(./go-readability -m $url | jq '.image' | tr -d \")
 # Generate a readable HTML file
 ./go-readability $url >>"$dir/$title".html
-# generate a cover
-convert -size 1000x1000 xc:rgb\($r,$g,$b\) cover.png
-convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity center -size 1000x150 caption:"$title" cover.png +swap -gravity center -composite cover.png
+# Save the image as cover
+wget -q "$image" -O cover
 # convert HTML to EPUB
-pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
-
-rm cover.png
+pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover -o "$dir/$title".epub "$dir/$title".html
+rm cover
 
 echo
-echo "---"
 echo ">>> '$title' has been saved in '$dir'"
-echo "---"
 echo
