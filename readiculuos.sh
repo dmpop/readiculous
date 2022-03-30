@@ -18,8 +18,8 @@ USAGE:
 OPTIONS:
 --------
   -u Source URL
-  -d Destination directory
-  -m Enable auto mode
+  -d Destination directory (optinal)
+  -m Enable auto mode (optional)
 
 EXAMPLES:
 ---------
@@ -49,7 +49,11 @@ while getopts "u:d:m:" opt; do
 done
 shift $((OPTIND - 1))
 
-dir=Library/"$dir"
+if [ ! -z "$dir" ]; then
+    dir=Library/"$dir"
+else
+    dir=Library
+fi
 mkdir -p "$dir"
 
 readicule() {
