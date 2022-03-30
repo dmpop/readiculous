@@ -104,3 +104,9 @@ convert -background '#0008' -font Open-Sans -pointsize 50 -fill white -gravity c
 pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
 
 rm cover.png
+
+echo
+echo "---"
+echo ">>> '$title' has been saved in '$dir'"
+echo "---"
+echo
