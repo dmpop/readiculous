@@ -96,7 +96,7 @@ if [ "$mode" = "auto" ]; then
     exit 1
 fi
 
-if [ -z "$url" ] || [ -z "$dir" ]; then
+if [ -z "$url" ]; then
     usage
 fi
 
