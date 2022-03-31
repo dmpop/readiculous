@@ -10,7 +10,7 @@ Readiculuos requires the [Pandoc](https://pandoc.org), [ImageMagick](https://ima
 
 # Installation and usage
 
-1. Install Pandoc, ImageMagick, and jq. To do this on Ubuntu and Linux Mint, run the `sudo apt install pandoc imagemagick jq wget` command.
+1. Install Pandoc, ImageMagick, and jq. To do this on Ubuntu and Linux Mint, run the `sudo apt install pandoc imagemagick jq` command.
 2. Readiculous comes bundled with the x86_64 precompiled binary of Go-Readability. For other platform, you have to compile it yourself.
 3. Clone the project's Git repository: `git clone https://github.com/dmpop/readiculuos`
 
