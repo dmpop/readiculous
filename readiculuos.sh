@@ -57,12 +57,16 @@ fi
 mkdir -p "$dir"
 
 readicule() {
+    # Generate cover color
+    r=$(shuf -i 0-255 -n 1)
+    g=$(shuf -i 0-255 -n 1)
+    b=$(shuf -i 0-255 -n 1)
     # Extract title and image from the specified URL
     title=$(./go-readability -m $url | jq '.title' | tr -d \")
     # Generate a readable HTML file
     ./go-readability $url >>"$dir/$title".html
     # Generate a cover
-    convert -size 800x1024 plasma:fractal -paint 10 -blur 10x20 -paint 5 cover.png
+    convert -size 800x1024 xc:rgb\($r,$g,$b\) cover.png
     convert -background '#0008' -font Open-Sans -pointsize 35 -fill white -gravity center -size 700x200 caption:"$title" cover.png +swap -gravity center -composite cover.png
     if [ -z "$title" ]; then
         title="This is Readiculous!"
