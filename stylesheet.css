@@ -2,15 +2,15 @@
 
 h1 {
   text-align: center;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Arvo", sans-serif;
 }
 h2 {
   text-align: left;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Arvo", sans-serif;
 }
 h3 {
   text-align: left;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Arvo", sans-serif;
 }
 ol.toc {
   padding: 0;
@@ -24,7 +24,7 @@ ol.toc li {
 
 body {
   text-align: justify;
-  font-family: "Open Sans", "Fira Sans", sans-serif;
+  font-family: "Vollkorn", sans-serif;
   font-size: medium;
   line-height: 150%;
 }
@@ -95,26 +95,14 @@ tbody {
 }
 
 @font-face {
-  font-family: Open Sans;
+  font-family: Arvo;
   font-style: normal;
   font-weight: normal;
-  src: url("OpenSans-Regular.ttf");
+  src: url("fonts/Arvo-Regular.ttf");
 }
 @font-face {
-  font-family: Open Sans;
+  font-family: Vollkorn;
   font-style: normal;
-  font-weight: bold;
-  src: url("OpenSans-Bold.ttf");
-}
-@font-face {
-  font-family: Open Sans;
-  font-style: italic;
   font-weight: normal;
-  src: url("OpenSans-Italic.ttf");
-}
-@font-face {
-  font-family: Open Sans;
-  font-style: italic;
-  font-weight: bold;
-  src: url("OpenSans-BoldItalic.ttf");
+  src: url("fonts/Vollkorn-Regular.ttf");
 }
