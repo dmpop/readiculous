@@ -57,23 +57,19 @@ fi
 mkdir -p "$dir"
 
 readicule() {
-    # Generate cover color
-    r=$(shuf -i 0-255 -n 1)
-    g=$(shuf -i 0-255 -n 1)
-    b=$(shuf -i 0-255 -n 1)
     # Extract title and image from the specified URL
     title=$(./go-readability -m $url | jq '.title' | tr -d \")
     # Generate a readable HTML file
     ./go-readability $url >>"$dir/$title".html
     # Generate a cover
-    convert -size 800x1024 xc:rgb\($r,$g,$b\) cover.png
-    convert -background '#0008' -font Open-Sans -pointsize 35 -fill white -gravity center -size 700x200 caption:"$title" cover.png +swap -gravity center -composite cover.png
+    wget -q https://picsum.photos/800/1024 -O cover.jpg
+    convert -background '#0008' -font Open-Sans -pointsize 35 -fill white -gravity center -size 700x200 caption:"$title" cover.jpg +swap -gravity center -composite cover.jpg
     if [ -z "$title" ]; then
         title="This is Readiculous!"
     fi
     # convert HTML to EPUB
-    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover.png -o "$dir/$title".epub "$dir/$title".html
-    rm cover.png
+    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover.jpg -o "$dir/$title".epub "$dir/$title".html
+    rm cover.jpg
     echo
     echo ">>> '$title' has been saved in '$dir'"
     echo
