@@ -30,7 +30,7 @@ EOF
     exit 1
 }
 
-#Read the specfied parameters
+#Read the specified parameters
 while getopts "u:d:m:" opt; do
     case ${opt} in
     u)
@@ -76,7 +76,7 @@ readicule() {
     fi
     # convert HTML to EPUB
     pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.jpg -o "$dir/$title".epub "$dir/$title".html
-    rm cover.jpg
+    rm cover.jpg "$dir/$title".html
     echo
     echo ">>> '$title' has been saved in '$dir'"
     echo
@@ -93,6 +93,7 @@ if [ "$mode" = "auto" ]; then
     while IFS="" read -r url || [ -n "$url" ]; do
         readicule
     done <"$file"
+    rm links.txt
     exit 1
 fi
 
