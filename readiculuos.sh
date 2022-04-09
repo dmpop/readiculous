@@ -56,13 +56,6 @@ else
 fi
 mkdir -p "$dir"
 
-# Add all fonts
-for f in fonts/*.ttf; do
-    embed_fonts+="--epub-embed-font="
-    embed_fonts+=$f
-    embed_fonts+=" "
-done
-
 readicule() {
     # Extract title and image from the specified URL
     title=$(./go-readability -m $url | jq '.title' | tr -d \")
@@ -75,7 +68,7 @@ readicule() {
         title="This is Readiculous!"
     fi
     # convert HTML to EPUB
-    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css $embed_fonts --epub-cover-image=cover.jpg -o "$dir/$title".epub "$dir/$title".html
+    pandoc -f html -t epub --metadata title="$title" --metadata creator="Readiculous" --metadata publisher="$url" --css=stylesheet.css --epub-cover-image=cover.jpg -o "$dir/$title".epub "$dir/$title".html
     rm cover.jpg "$dir/$title".html
     echo
     echo ">>> '$title' has been saved in '$dir'"
